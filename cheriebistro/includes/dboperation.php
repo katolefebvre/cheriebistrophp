@@ -25,6 +25,18 @@ class DbOperation
         }
     }
 
+    public function createCategory($name)
+    {
+        $stmt = $this->conn->prepare("INSERT INTO category (name) VALUES (?)");
+        $stmt->bind_param("s", $name);
+
+        if ($stmt->execute()) {
+            return array(CATEGORY_CREATED, $this->conn->insert_id);
+        } else {
+            return array(CATEGORY_NOT_CREATED, $stmt->error);
+        }
+    }
+
     public function createMenuItemCategoryConnection($menu_item_id, $category_id)
     {
         $stmt = $this->conn->prepare("INSERT INTO menu_item_categories (menu_item_id, category_id) VALUES (?, ?)");
@@ -140,6 +152,23 @@ class DbOperation
             }
         }
     }
+
+    public function getUserDetailsWithPassword($employeeID)
+    {
+        $response = array();
+        $sql = "SELECT employeeID, employeeName from users where employeeID = $employeeID";
+
+        $result = $this->conn->query($sql);
+        if ($result != null && (mysqli_num_rows($result) >= 1))
+        {
+            $row = $result->fetch_array(MYSQLI_ASSOC);
+        if (!empty($row)) {
+            $response = $row;
+        }
+        }
+        return $response;
+        }
+
 }
 
 ?>
