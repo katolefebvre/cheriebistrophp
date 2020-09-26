@@ -49,12 +49,12 @@ class DbOperation
         }
     }
 
-    public function getTimeSlots()
+    public function getEmployees() 
     {
         $result = array();
         $time_slots = array();
 
-        $stmt = "SELECT * FROM time_slot";
+        $stmt = "SELECT * FROM users";
 
         if (!$result = $this->conn->query($stmt)) {
             return false;
@@ -64,6 +64,27 @@ class DbOperation
                     array_push($time_slots, $row);
                 }
                 return $time_slots;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getTimeSlots()
+    {
+        $result = array();
+        $employees = array();
+
+        $stmt = "SELECT * FROM time_slot";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($employees, $row);
+                }
+                return $employees;
             } else {
                 return false;
             }
@@ -156,7 +177,7 @@ class DbOperation
     public function getUserDetailsWithPassword($employeeID)
     {
         $response = array();
-        $sql = "SELECT employeeID, employeeName from users where employeeID = $employeeID";
+        $sql = "SELECT employeeID, employeeName, roleID from users where employeeID = $employeeID";
 
         $result = $this->conn->query($sql);
         if ($result != null && (mysqli_num_rows($result) >= 1))
