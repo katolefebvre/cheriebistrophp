@@ -183,12 +183,29 @@ class DbOperation
         if ($result != null && (mysqli_num_rows($result) >= 1))
         {
             $row = $result->fetch_array(MYSQLI_ASSOC);
-        if (!empty($row)) {
-            $response = $row;
-        }
+            if (!empty($row)) {
+                $response = $row;
+            }
         }
         return $response;
+    }
+
+    public function getTableDetails($tableID)
+    {
+        $response = array();
+        $sql = "SELECT tableID, tableName from tables where tableID = $tableID";
+
+        $result = $this->conn->query($sql);
+        if ($result != null && (mysqli_num_rows($result) >= 1))
+        {
+            $row = $result->fetch_array(MYSQLI_ASSOC);
+            if (!empty($row))
+            {
+                $response = $row;
+            }
         }
+        return $response;
+    }
 
 }
 
