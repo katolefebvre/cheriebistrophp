@@ -12,12 +12,13 @@ $result = $db->getEmployees();
 if ($result == false) {
     $response['error'] = true;
 } else {
-    foreach ($result as $menuitem) {
+    foreach ($result as $employee) {
         $temp = array();
 
-        $temp['employeeID'] = $menuitem['employeeID'];
-        $temp['employeeName'] = $menuitem['employeeName'];
-        $temp['roleID'] = $menuitem['roleID'];
+        $temp['employeeID'] = $employee['employeeID'];
+        $temp['employeeName'] = $employee['employeeName'];
+        $temp['roleID'] = $employee['roleID'];
+        $temp['roleName'] = $employee['name'];
 
         array_push($response['employees'], $temp);
     }

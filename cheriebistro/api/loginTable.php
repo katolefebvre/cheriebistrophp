@@ -5,7 +5,6 @@ require_once '../includes/dboperation.php';
 $response = array();
 
 $tableID    = $_POST['tableID'];
-$tableName  = $_POST['tableName'];
 
 $db = new DbOperation();
 
@@ -28,8 +27,7 @@ if(!empty($userDetails))
     $response['tableName']  = $userDetails['tableName'];
 
 } else {
-
-    $response["status"]     = "error2";
+    $response["status"]     = "error2 " . $userDetails;
     $response["message"]    = "User is not found";
 }
 

@@ -49,21 +49,54 @@ class DbOperation
         }
     }
 
+    public function changeRole($employeeID, $roleID)
+    {
+        $stmt = $this->conn->prepare("UPDATE users SET roleID = ? WHERE employeeID = ?");
+        $stmt->bind_param("ii", $roleID, $employeeID);
+
+        if ($stmt->execute()) {
+            return ROLE_CHANGED;
+        } else {
+            return ROLE_NOT_CHANGED;
+        }
+    }
+
     public function getEmployees() 
     {
         $result = array();
-        $time_slots = array();
+        $employees = array();
 
-        $stmt = "SELECT * FROM users";
+        $stmt = "SELECT users.*, roles.name FROM users INNER JOIN roles ON roles.id = users.roleID";
 
         if (!$result = $this->conn->query($stmt)) {
             return false;
         } else {
             if ($result->num_rows) {
                 while ($row = $result->fetch_assoc()) {
-                    array_push($time_slots, $row);
+                    array_push($employees, $row);
                 }
-                return $time_slots;
+                return $employees;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getRoles() 
+    {
+        $result = array();
+        $roles = array();
+
+        $stmt = "SELECT * FROM roles";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($roles, $row);
+                }
+                return $roles;
             } else {
                 return false;
             }
@@ -177,7 +210,7 @@ class DbOperation
     public function getUserDetailsWithPassword($employeeID)
     {
         $response = array();
-        $sql = "SELECT employeeID, employeeName, roleID from users where employeeID = $employeeID";
+        $sql = "SELECT users.employeeID, users.employeeName, users.roleID, roles.name from users inner join roles on roles.id = users.roleID where users.employeeID = $employeeID";
 
         $result = $this->conn->query($sql);
         if ($result != null && (mysqli_num_rows($result) >= 1))

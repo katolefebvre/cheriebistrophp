@@ -28,6 +28,7 @@ if(!empty($userDetails))
     $response['employeeID'] = $userDetails['employeeID'];
     $response['employeeName'] = $userDetails['employeeName'];
     $response['roleID'] = $userDetails['roleID'];
+    $response['roleName'] = $userDetails['name'];
 
 } else {
 
