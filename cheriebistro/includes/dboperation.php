@@ -240,6 +240,24 @@ class DbOperation
         return $response;
     }
 
+    public function getMenuItemsForCategory($categoryID)
+    {
+        $response = array();
+        $sql = "SELECT * FROM menu_item m INNER JOIN menu_item_categories mc ON m.id = mc.menu_item_id where mc.category_id = $categoryID";
+
+        $result = $this->conn->query($sql);
+        if ($result != null && (mysqli_num_rows($result) >= 1))
+        {
+            $row = $result->fetch_query(MYSQLI_ASSOC);
+            if (!empty($row))
+            {
+                $response = $row;
+            }
+        }
+
+        return $response;
+    }
+
 }
 
 ?>
