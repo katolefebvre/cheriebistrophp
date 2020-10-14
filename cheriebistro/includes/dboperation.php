@@ -61,6 +61,31 @@ class DbOperation
         }
     }
 
+    public function createOrder($table_id, $price_total, $status)
+    {
+        $stmt = $this->conn->prepare("INSERT INTO table_order (table_id, price_total, status) VALUES (?, ?, ?)");
+        $stmt->bind_param("sss", $table_id, $price_total, $status);
+
+        if ($stmt->execute()) {
+            return $this->conn->insert_id;
+        } else {
+            return ORDER_NOT_CREATED;
+        }
+    }
+
+    public function createOrderItem($menu_item_id, $item_modification, $quantity, $order_id)
+    {
+        $stmt = $this->conn->prepare("INSERT INTO table_order_items (menu_item_id, item_modification, quantity, order_id ) VALUES (?,?,?,?)");
+        $stmt->bind_param("ssss", $menu_item_id, $item_modification, $quantity, $order_id);
+
+        if ($stmt->execute()) {
+            return $this->conn->insert_id;
+        } else {
+            return ORDER_ITEM_NOT_CREATED;
+        }
+    }
+  
+
     public function getEmployees() 
     {
         $result = array();
@@ -242,22 +267,95 @@ class DbOperation
 
     public function getMenuItemsForCategory($categoryID)
     {
-        $response = array();
-        $sql = "SELECT * FROM menu_item m INNER JOIN menu_item_categories mc ON m.id = mc.menu_item_id where mc.category_id = $categoryID";
+        $result = array();
+        $menu_item = array();
+        $stmt = "SELECT * FROM menu_item m INNER JOIN menu_item_categories mc ON m.id = mc.menu_item_id where mc.category_id = $categoryID";
 
-        $result = $this->conn->query($sql);
-        if ($result != null && (mysqli_num_rows($result) >= 1))
-        {
-            $row = $result->fetch_query(MYSQLI_ASSOC);
-            if (!empty($row))
-            {
-                $response = $row;
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($menu_item, $row);
+                }
+                return $menu_item;
+            } else {
+                return false;
             }
         }
-
-        return $response;
     }
 
+    public function getOrders() 
+    {
+        $result = array();
+        $orders = array();
+        $stmt = "SELECT * FROM table_order";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($orders, $row);
+                }
+                return $orders;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getOrderDetails($orderID)
+    {
+        $result = array();
+        $orderDetails = array();
+        $stmt = "SELECT * FROM table_order_items WHERE order_id = $orderID";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($orderDetails, $row);
+                }
+                return $orderDetails;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function getTimeSlotById($time_slot_id)
+    {
+        $result = array();
+        $timeSlot = array();
+        $stmt = "SELECT * FROM time_slot where id = $time_slot_id";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($timeSlot, $row);
+                }
+                return $timeSlot;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function changeOrderStatus($orderID, $status)
+    {
+        $stmt = $this->conn->prepare("UPDATE table_order SET status = ? WHERE order_id = ?");
+        $stmt->bind_param("si", $status, $orderID);
+
+        if ($stmt->execute()) {
+            return ORDER_STATUS_CHANGED;
+        } else {
+            return ORDER_STATUS_NOT_CHANGED;
+        }
+    }
 }
 
 ?>
