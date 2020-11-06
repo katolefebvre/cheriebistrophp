@@ -248,21 +248,48 @@ class DbOperation
         return $response;
     }
 
-    public function getTableDetails($tableID)
+    public function getTableDetails($tableID, $employeeID)
     {
-        $response = array();
-        $sql = "SELECT tableID, tableName from tables where tableID = $tableID";
+        $sql = "SELECT tableID, employeeID from tables where tableID = $tableID AND employeeID IS NULL";
 
         $result = $this->conn->query($sql);
-        if ($result != null && (mysqli_num_rows($result) >= 1))
+        if ($result != null && (mysqli_num_rows($result) == 1))
         {
             $row = $result->fetch_array(MYSQLI_ASSOC);
             if (!empty($row))
             {
-                $response = $row;
+                $stmt = $this->conn->prepare("UPDATE tables SET employeeID = ? WHERE tableID = ?");
+                $stmt->bind_param("ii", $employeeID, $tableID);
+    
+                if ($stmt->execute()) {
+                    return TABLE_ASSIGNED;
+                } else {
+                    return EMPLOYEE_INVALID;
+                }
             }
         }
-        return $response;
+        return TABLE_INVALID;
+    }
+
+    public function getAvailableTables()
+    {
+        $result = array();
+        $tables = array();
+
+        $stmt = "SELECT * FROM tables WHERE employeeID IS NULL";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($tables, $row);
+                }
+                return $tables;
+            } else {
+                return false;
+            }
+        }
     }
 
     public function getMenuItemsForCategory($categoryID)

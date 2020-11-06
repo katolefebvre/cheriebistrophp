@@ -4,12 +4,13 @@ require_once '../includes/dboperation.php';
 
 $response = array();
 
-$tableID    = $_POST['tableID'];
+$tableID = $_POST['tableID'];
+$employeeID = $_POST['employeeID'];
 
 $db = new DbOperation();
 
 
-if(empty($tableID))
+if(empty($tableID) || empty($employeeID))
 {
     $response["status"] = "error1";
     $response["message"] = "Missing required field";
@@ -17,18 +18,19 @@ if(empty($tableID))
     return;
 }
 
-$tableDetails = $db->getTableDetails($tableID);
+$tableDetails = $db->getTableDetails($tableID, $employeeID);
 
-if(!empty($userDetails))
+if($tableDetails == TABLE_ASSIGNED)
 {
-    $response["status"]     = "Success";
-    $response["message"]    = "User is registered";
-    $response['tableID']    = $userDetails['tableID'];
-    $response['tableName']  = $userDetails['tableName'];
+    $response["status"] = "Success";
+    $response["message"] = "Table is registered.";
 
+} elseif ($tableDetails == EMPLOYEE_INVALID) {
+    $response["status"] = "error2";
+    $response["message"] = "Employee ID is invalid.";
 } else {
-    $response["status"]     = "error2 " . $userDetails;
-    $response["message"]    = "User is not found";
+    $response["status"] = "error3";
+    $response["message"] = "Table is not available.";
 }
 
 echo json_encode($response);
