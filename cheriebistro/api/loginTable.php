@@ -18,7 +18,7 @@ if(empty($tableID) || empty($employeeID))
     return;
 }
 
-$tableDetails = $db->getTableDetails($tableID, $employeeID);
+$tableDetails = $db->registerTable($tableID, $employeeID);
 
 if($tableDetails == TABLE_ASSIGNED)
 {

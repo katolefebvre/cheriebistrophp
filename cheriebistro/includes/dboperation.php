@@ -84,6 +84,41 @@ class DbOperation
             return ORDER_ITEM_NOT_CREATED;
         }
     }
+
+    public function editOrder($order_id, $table_id, $price_total, $status)
+    {
+        $stmt = $this->conn->prepare("UPDATE table_order SET price_total = ?, status = ? WHERE order_id = ? AND table_id = ?");
+        $stmt->bind_param("ssss", $price_total, $status, $order_id, $table_id);
+
+        if ($stmt->execute()) {
+            return 1;
+        } else {
+            return ORDER_NOT_EDITED;
+        }
+    }
+
+    public function editOrderItem($order_id, $menu_item_id, $item_modification, $quantity, $delete)
+    {
+        if ($delete == "true") {
+            $stmt = $this->conn->prepare("DELETE FROM table_order_items WHERE order_id = ? AND menu_item_id = ?");
+            $stmt->bind_param("ss", $order_id, $menu_item_id);
+            
+            if ($stmt->execute()) {
+                return 1;
+            } else {
+                return ORDER_ITEM_NOT_DELETED;
+            }
+        } else {
+            $stmt = $this->conn->prepare("UPDATE table_order_items SET item_modification = ?, quantity = ? WHERE order_id = ? AND menu_item_id = ?");
+            $stmt->bind_param("ssss", $item_modification, $quantity, $order_id, $menu_item_id);
+
+            if ($stmt->execute()) {
+                return 1;
+            } else {
+                return ORDER_ITEM_NOT_EDITED;
+            }
+        }
+    }
   
 
     public function getEmployees() 
@@ -212,7 +247,8 @@ class DbOperation
         }
     }
 
-    public function getMenuItemCategories() {
+    public function getMenuItemCategories() 
+    {
         $result = array();
         $menu_item_categories = array();
 
@@ -248,7 +284,28 @@ class DbOperation
         return $response;
     }
 
-    public function getTableDetails($tableID, $employeeID)
+    public function getTablesForUser($employeeID)
+    {
+        $result = array();
+        $tables = array();
+
+        $stmt = "SELECT * FROM tables WHERE employeeID = $employeeID";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($tables, $row);
+                }
+                return $tables;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function registerTable($tableID, $employeeID)
     {
         $sql = "SELECT tableID, employeeID from tables where tableID = $tableID AND employeeID IS NULL";
 

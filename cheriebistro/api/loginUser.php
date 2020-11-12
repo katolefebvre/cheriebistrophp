@@ -19,6 +19,7 @@ if(empty($employeeID))
 }
 
 $userDetails = $db->getUserDetailsWithPassword($employeeID);
+$tables = $db->getTablesForUser($employeeID);
 
 if(!empty($userDetails))
 {
@@ -30,8 +31,18 @@ if(!empty($userDetails))
     $response['roleID'] = $userDetails['roleID'];
     $response['roleName'] = $userDetails['name'];
 
-} else {
+    $response['tables'] = array();
 
+    if ($tables != false) {
+        foreach ($tables as $table) {
+            $temp = array();
+            $temp['tableID'] = $table['tableID'];
+            array_push($response['tables'], $temp);
+        }
+    } else {
+        array_push($response['tables'], '0');
+    }
+} else {
     $response["status"] = "error2";
     $response["message"] = "User is not found";
 }
