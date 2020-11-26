@@ -349,6 +349,39 @@ class DbOperation
         }
     }
 
+    public function getAssignedTables()
+    {
+        $result = array();
+        $tables = array();
+
+        $stmt = "SELECT * FROM tables WHERE employeeID IS NOT NULL";
+
+        if (!$result = $this->conn->query($stmt)) {
+            return false;
+        } else {
+            if ($result->num_rows) {
+                while ($row = $result->fetch_assoc()) {
+                    array_push($tables, $row);
+                }
+                return $tables;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    public function unassignTable($tableID) 
+    {
+        $stmt = $this->conn->prepare("UPDATE tables SET employeeID = NULL WHERE tableID = ?");
+        $stmt->bind_param("i", $tableID);
+
+        if ($stmt->execute()) {
+            return 1;
+        } else {
+            return ORDER_NOT_EDITED;
+        }
+    }
+
     public function getMenuItemsForCategory($categoryID)
     {
         $result = array();
